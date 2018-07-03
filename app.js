@@ -57,6 +57,25 @@ var budgetController = (function () {
 
             return newItem;
         },
+        
+        deleteItem: function(type, id) {
+            var ids, index;
+            
+            // id = 6
+            // data.allItems[type].map...
+            // ids = [1 2 4 6 8]
+            // index = 3
+            
+            ids = data.allItems[type].map(function(current) {
+                return current.id;
+            });
+            
+            index = ids.indexOf(id);
+            
+            if(index !== -1) {
+                data.allItems[type].splice(index, 1);
+            }
+        },
 
         calculateBudget: function () {
             //calc total inc and exp
@@ -100,7 +119,8 @@ var UIController = (function () {
         budgetLable: '.budget__value',
         incomeLable: '.budget__income--value',
         expensesLabel: '.budget__expenses--value',
-        percentageLabel: '.budget__expenses--percentage'
+        percentageLabel: '.budget__expenses--percentage',
+        container: '.container'
     };
 
     return {
@@ -132,6 +152,11 @@ var UIController = (function () {
             //Insert HTML into DOM
             document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
         },
+        
+        deleteItemList: function(selectorID) {
+            var el = document.getElementById(selectorID);
+            el.parentNode.removeChild(el);
+        },
 
         clearFields: function () {
             var fields = document.querySelectorAll(DOMstrings.inputDescription + ', ' + DOMstrings.inputValue);
@@ -143,13 +168,13 @@ var UIController = (function () {
 
             fieldsArr[0].focus();
         },
-        
-        displayBudget: function(obj) {
+
+        displayBudget: function (obj) {
             document.querySelector(DOMstrings.budgetLable).textContent = obj.budget;
             document.querySelector(DOMstrings.incomeLable).textContent = obj.totalInc;
             document.querySelector(DOMstrings.expensesLabel).textContent = obj.totalExp;
-            
-            if(obj.percentage > 0) {
+
+            if (obj.percentage > 0) {
                 document.querySelector(DOMstrings.percentageLabel).textContent = obj.percentage + '%';
             } else {
                 document.querySelector(DOMstrings.percentageLabel).textContent = '---';
@@ -163,7 +188,7 @@ var UIController = (function () {
 
 })();
 
-//
+//App controller
 var controller = (function (budgetCtrl, UICtrl) {
 
     var setupEventListeners = function () {
@@ -177,6 +202,8 @@ var controller = (function (budgetCtrl, UICtrl) {
                 ctrlAddItem();
             }
         });
+
+        document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
     };
 
     var updateBudget = function () {
@@ -203,6 +230,25 @@ var controller = (function (budgetCtrl, UICtrl) {
             //Clear fields
             UICtrl.clearFields();
             //Calc and update budget
+            updateBudget();
+        }
+    };
+
+    var ctrlDeleteItem = function (event) {
+        var itemID, splitID, type, ID;
+        itemID = event.target.parentNode.parentNode.parentNode.parentNode.id;
+        console.log(itemID);
+        
+        if(itemID) {
+            splitID = itemID.split('-');
+            type = splitID[0];
+            ID = parseInt(splitID[1]);
+            
+            //delete item from data structure
+            budgetCtrl.deleteItem(type, ID);
+            //delete item from UI
+            UICtrl.deleteItemList(itemID);
+            //update and show new budget
             updateBudget();
         }
     };
