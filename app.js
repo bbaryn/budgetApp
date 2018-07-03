@@ -76,7 +76,7 @@ var budgetController = (function () {
             return {
                 budget: data.budget,
                 totalInc: data.totals.inc,
-                totalIExp: data.totals.exp,
+                totalExp: data.totals.exp,
                 percentage: data.percentage
             };
         },
@@ -96,7 +96,11 @@ var UIController = (function () {
         inputValue: '.add__value',
         inputBtn: '.add__btn',
         incomeContainer: '.income__list',
-        expensesContainer: '.expenses__list'
+        expensesContainer: '.expenses__list',
+        budgetLable: '.budget__value',
+        incomeLable: '.budget__income--value',
+        expensesLabel: '.budget__expenses--value',
+        percentageLabel: '.budget__expenses--percentage'
     };
 
     return {
@@ -139,6 +143,18 @@ var UIController = (function () {
 
             fieldsArr[0].focus();
         },
+        
+        displayBudget: function(obj) {
+            document.querySelector(DOMstrings.budgetLable).textContent = obj.budget;
+            document.querySelector(DOMstrings.incomeLable).textContent = obj.totalInc;
+            document.querySelector(DOMstrings.expensesLabel).textContent = obj.totalExp;
+            
+            if(obj.percentage > 0) {
+                document.querySelector(DOMstrings.percentageLabel).textContent = obj.percentage + '%';
+            } else {
+                document.querySelector(DOMstrings.percentageLabel).textContent = '---';
+            }
+        },
 
         getDOMstrings: function () {
             return DOMstrings;
@@ -169,7 +185,7 @@ var controller = (function (budgetCtrl, UICtrl) {
         //Return budget
         var budget = budgetCtrl.getBudget();
         //Display budget
-        console.log(budget);
+        UICtrl.displayBudget(budget);
     };
 
     var ctrlAddItem = function () {
@@ -194,6 +210,12 @@ var controller = (function (budgetCtrl, UICtrl) {
     return {
         init: function () {
             console.log('Application has started.');
+            UICtrl.displayBudget({
+                budget: 0,
+                totalInc: 0,
+                totalExp: 0,
+                percentage: -1
+            });
             setupEventListeners();
         }
     };
